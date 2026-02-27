@@ -1,0 +1,19 @@
+# Python bytecode (compiled files)
+__pycache__/
+*.pyc
+
+# Local database (SQLite)
+db.sqlite3
+
+# Virtual environment
+venv/
+env/
+.env/
+
+# Media and Static root
+media/
+static_root/
+
+# IDE files
+.vscode/
+.idea/

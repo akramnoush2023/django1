@@ -116,3 +116,32 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# # email server configuration
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
+# EMAIL_USE_USER = 'akramnoush2023@gmail.com'
+# EMAIL_USE_PASSWORD = 'qjhw eokr efrj kwhi'
+
+
+
+# settings.py
+EMAIL_BACKEND = 'blog.backends.UnsafeEmailBackend'
+
+# Django email configuration
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' # Replace with your SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'akramnoush2023@gmail.com'
+EMAIL_HOST_PASSWORD = 'qjhw eokr efrj kwhi'
+
+
+
+
+
+

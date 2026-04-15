@@ -6,35 +6,42 @@ from django.views.generic import ListView
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 from django.views.decorators.http import require_POST
+from taggit.models import Tag
+from django.db.models import Count
 
 # Create your views here.
-# def home(request):
-#     return render(request, 'home.html')
+def home(request):
+    return render(request, 'home.html')
 
-# def about(request):
-#     return render(request, 'about.html')
+def about(request):
+    return render(request, 'about.html')
 
-# def post_list(request):
-#     # posts = Post.objects.all()
-#     post_list = Post.objects.all()
-#     paginator = Paginator(post_list, 1)
-#     page_number = request.GET.get('page', 1)
-#     try:
-#         posts = paginator.page(page_number)
-#     except PageNotAnInteger:
-#         posts = paginator.page(1)
-#     except EmptyPage: 
-#         posts = paginator.page(paginator.num_pages)
-#     return render(request, 'blog/post/list.html', {'posts': posts})
+def post_list(request, tag_slug=None):
+    # posts = Post.objects.all()
+    post_list = Post.objects.all()
+    tag = None
+    if tag_slug:
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        post_list = post_list.filter(tags__in=[tag])
 
-class PostListView(ListView):
-    """
-    Alternative post list view
-    """
-    model = Post
-    context_object_name = 'posts'
-    paginate_by = 3
-    template_name = 'blog/post/list.html'
+    paginator = Paginator(post_list, 1)
+    page_number = request.GET.get('page', 1)
+    try:
+        posts = paginator.page(page_number)
+    except PageNotAnInteger:
+        posts = paginator.page(1)
+    except EmptyPage: 
+        posts = paginator.page(paginator.num_pages)
+    return render(request, 'blog/post/list.html', {'posts': posts})
+
+# class PostListView(ListView):
+#     """
+#     Alternative post list view
+#     """
+#     model = Post
+#     context_object_name = 'posts'
+#     paginate_by = 3
+#     template_name = 'blog/post/list.html'
 
 def post_detail(request, year, month, day, post):
 #     try:
@@ -49,13 +56,20 @@ def post_detail(request, year, month, day, post):
         slug=post,
         publish__year=year,
         publish__month=month,
-        publish__day=day,
+        publish__day=day
     )
     # list of active comments for this post
     comments = post.comments.filter(active=True)
+
     # form for users to commit
     form = CommentForm()
-    return render(request, 'blog/post/detail.html', {'post': post, 'comments':comments, 'form':form})
+    
+    # list of similar post
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    similar_posts = Post.objects.filter(tags__in=post_tags_ids).exclude(id=post.id)
+    similar_posts = similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags','-publish')
+
+    return render(request, 'blog/post/detail.html', {'post': post, 'comments':comments, 'form':form, 'similar_posts': similar_posts})
 
 def post_share(request, post_id):
     # retrieve post by id 
